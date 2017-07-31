@@ -1,0 +1,111 @@
+<html>
+<head>
+	<title>Job Tracker</title>
+	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+	<link rel="stylesheet" type="text/css" href="styles.css">
+	<script>
+		function allowDrop(ev) {
+			ev.preventDefault();
+		}
+
+		function drag(ev) {
+			ev.dataTransfer.setData("text", ev.target.id);
+			$.get("/delete/", {name: ev.target.childNodes[0].textContent, table: ev.target.getAttribute('table')});
+		}
+
+		function drop(ev) {
+			ev.preventDefault();
+		    var data = ev.dataTransfer.getData('text');
+		    var table = ev.target.getAttribute('class').split(" ")[0];
+		    $.get("/insert/", {name: document.getElementById(data).childNodes[0].textContent, table: table, weight: document.getElementById(data).childNodes[1].textContent});
+		    var newele = document.getElementById(data);
+		    newele.setAttribute('table', table);
+		    ev.target.appendChild(newele);
+		    location.reload();
+		}
+	</script>
+</head>
+
+<body>
+	<div class="row">
+		<div class="addnew">
+			<input placeholder='job' type="text" id="newele">
+			<input placeholder='weight' type="number" id="weight">
+			<button id="add">Add</button>
+		</div>
+	</div>
+
+	<div class="row">
+		<h1 class="main-heading col-sm-3">
+			<center>Start</center>
+		</h1>
+		<h1 class="main-heading col-sm-3">
+			<center>Progress</center>
+		</h1>
+		<h1 class="main-heading col-sm-3">
+			<center>Done</center>
+		</h1>
+	</div>
+	<div class="row">	
+		<div ondragover="allowDrop(event)" ondrop="drop(event)" class="start col-sm-3">
+			
+		</div>
+		<div ondrop="drop(event)" ondragover="allowDrop(event)" class="progress col-sm-3">
+			
+		</div>
+		<div ondrop="drop(event)" ondragover="allowDrop(event)" class="done col-sm-3">
+			
+		</div>
+	</div>
+
+	<script type="text/javascript">
+		$(document).ready(function() {
+
+			function add() {
+				$.get("/insert/", {name: $('#newele').val(), table: 'start', weight: $('#weight').val()});
+				location.reload();
+			}
+
+			$('#add').click(function(e) {
+				add();
+			});
+
+			$(document).keypress(function(e) {
+				if(e.which == 13) {
+			    	$('#add').click();
+			    	return false;
+			    }
+			});
+
+
+			var i=0;
+
+			<% start.forEach(function(job) { %>
+				i++;
+				$('.start').append('<div id="'+i+'" table="start" ondragstart="drag(event)" draggable="true" class="card"><span><%= job.name %></span><span class="badge pull-right"><%= job.weight %></span></div>');
+		    <% }); %>
+
+		    <% progress.forEach(function(job) { %>
+		    	i++;
+				$('.progress').append('<div id="'+i+'" table="progress" ondragstart="drag(event)" draggable="true" class="card"><span><%= job.name %></span><span class="badge pull-right"><%= job.weight %></span></div>');
+		    <% }); %>
+
+		    <% done.forEach(function(job) { %>
+		    	i++;
+				$('.done').append('<div id="'+i+'" table="done" ondragstart="drag(event)" draggable="true" class="card"><span><%= job.name %></span><span class="badge pull-right"><%= job.weight %></span><button class="btn btn-xs delete pull-left">&#10008;</button></div>');
+		    <% }); %>
+
+		    $('.delete').on('click', function() {
+		    	var name = $(this).prev().prev()[0].innerHTML;
+		    	var weight = parseInt($(this).prev()[0].innerHTML);
+		    	console.log(weight);
+				$.get("/delete/", {name: name, table: 'done'});
+				$.get("/insert/", {name: name, table: 'deleted', weight: weight});
+				location.reload();
+			}); 
+		});
+	</script>
+</body>
+</html>

@@ -1,0 +1,15 @@
+{
+  "name": "tracker",
+  "version": "1.0.0",
+  "description": "To track progress of various jobs",
+  "main": "app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Venkata Sai Kiran Kompalli",
+  "license": "ISC",
+  "dependencies": {
+    "nodemon": "^1.11.0",
+    "sqlite3": "^3.1.8"
+  }
+}
